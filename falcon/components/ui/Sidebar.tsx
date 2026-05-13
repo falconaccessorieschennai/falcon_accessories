@@ -137,14 +137,22 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* Mobile hamburger trigger */}
-      <button
-        onClick={() => setMobileOpen(true)}
-        aria-label="Open menu"
-        className="lg:hidden fixed top-4 left-4 z-30 w-10 h-10 flex items-center justify-center rounded-lg bg-surface border border-border text-text-secondary hover:text-text-primary transition-colors"
-      >
-        <Menu className="w-5 h-5" />
-      </button>
+      {/* Mobile top bar */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-30 h-14 bg-surface border-b border-border flex items-center px-4 gap-3">
+        <button
+          onClick={() => setMobileOpen(true)}
+          aria-label="Open menu"
+          className="w-9 h-9 flex items-center justify-center rounded-lg text-text-secondary hover:text-text-primary transition-colors"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center">
+            <span className="text-primary font-bold text-xs">FA</span>
+          </div>
+          <span className="text-text-primary font-semibold text-sm">Falcon Accessories</span>
+        </div>
+      </div>
 
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex flex-col fixed inset-y-0 left-0 w-60 bg-surface border-r border-border z-20">
