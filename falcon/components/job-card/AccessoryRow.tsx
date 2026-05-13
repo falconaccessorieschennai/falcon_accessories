@@ -98,18 +98,6 @@ export default function AccessoryRow({
             />
           </div>
 
-          {/* Quantity */}
-          <div>
-            <label className="block text-text-secondary text-xs mb-1">Quantity</label>
-            <input
-              type="number"
-              min={1}
-              value={selected.quantity}
-              onChange={(e) => patch({ quantity: Math.max(1, Number(e.target.value)) })}
-              className={INPUT_CLASS}
-            />
-          </div>
-
           {/* Price */}
           <div>
             <label className="block text-text-secondary text-xs mb-1">Price (₹)</label>
