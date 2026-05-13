@@ -27,7 +27,7 @@ export const ACCESSORY_CATALOG: Record<string, AccessoryDefinition[]> = {
   ],
 
   'Essential': [
-    { id: 'sun-film',         name: 'Sun Film',         variants: [] },
+    { id: 'sun-film',         name: 'Sun Film',         variants: ['Hi-Teach', 'Hi-Cool', 'Garware','3M Film'] },
     {
       id: 'seat-cover',
       name: 'Seat Cover',
@@ -46,8 +46,8 @@ export const ACCESSORY_CATALOG: Record<string, AccessoryDefinition[]> = {
   ],
 
   'Entertainment': [
-    { id: 'android-system', name: 'Android System', variants: [] },
-    { id: 'speakers',       name: 'Speakers',       variants: [] },
+    { id: 'android-system', name: 'Android System', variants: ['TS7 - (4+64)','P13 - (4+64 Carplay)','ZY - (4+64 Carplay)','MTK - (4+64 Carplay)','T5 - (4+32 DVR Carplay)','T5 - (4+32 360* Carplay)','Diamond - (4+64 2K Carplay)','Diamond - (4+64 360* Carplay)','Rapid 13inch- (6+64 Carplay)'] },
+    { id: 'speakers',       name: 'Speakers',       variants: ['component','coaxial'] },
     { id: 'sub-woofers',    name: 'Sub Woofers',    variants: [] },
     {
       id: 'ambient-light',
