@@ -35,8 +35,8 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
   return (
     <div className="min-h-screen bg-background flex">
       <Sidebar />
-      {/* Main content — offset for desktop sidebar */}
-      <main className="flex-1 lg:ml-60 min-h-screen">
+      {/* Main content — offset for desktop sidebar, top padding on mobile for the header bar */}
+      <main className="flex-1 lg:ml-60 min-h-screen pt-14 lg:pt-0">
         <AnimatePresence mode="wait">
           <motion.div
             key={pathname}
