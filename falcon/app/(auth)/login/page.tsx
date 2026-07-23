@@ -34,7 +34,7 @@ export default function LoginPage() {
             name: credential.user.displayName ?? credential.user.email?.split('@')[0] ?? 'User',
             email: credential.user.email ?? '',
             role: 'employee',
-            createdAt: new Date(),
+            createdAt: new Date() as any,
           });
         }
       } catch (profileErr) {
