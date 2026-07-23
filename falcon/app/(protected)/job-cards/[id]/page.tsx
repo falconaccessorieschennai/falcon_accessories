@@ -127,7 +127,7 @@ export default function JobCardDetailsPage() {
           <ArrowLeft className="w-4 h-4" />
           Back
         </button>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           {canEdit && (
             <button
               onClick={() => router.push(`/job-cards/${id}/edit`)}

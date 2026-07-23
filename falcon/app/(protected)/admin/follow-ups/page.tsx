@@ -253,18 +253,18 @@ export default function FollowUpsPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex items-center gap-3 flex-wrap">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <input
           type="date"
           value={filterDate}
           onChange={(e) => setFilterDate(e.target.value)}
-          className="bg-surface-2 border border-border text-text-primary rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary transition"
+          className="bg-surface-2 border border-border text-text-primary rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary transition w-full"
           title="Filter by date"
         />
         <select
           value={filterCategory}
           onChange={(e) => setFilterCategory(e.target.value as Category | '')}
-          className="bg-surface-2 border border-border text-text-primary rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary transition"
+          className="bg-surface-2 border border-border text-text-primary rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary transition w-full"
         >
           <option value="">All Categories</option>
           {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
@@ -272,10 +272,10 @@ export default function FollowUpsPage() {
         <select
           value={filterEmployee}
           onChange={(e) => setFilterEmployee(e.target.value)}
-          className="bg-surface-2 border border-border text-text-primary rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary transition"
+          className="bg-surface-2 border border-border text-text-primary rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary transition w-full"
         >
           <option value="">All Employees</option>
-          {employees.map((emp) => <option key={emp.uid} value={emp.email}>{emp.name} ({emp.email})</option>)}
+          {employees.map((emp) => <option key={emp.uid} value={emp.email}>{emp.name}</option>)}
         </select>
         {(filterDate || filterCategory || filterEmployee) && (
           <button

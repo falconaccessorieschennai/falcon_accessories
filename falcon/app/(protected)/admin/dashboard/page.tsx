@@ -145,7 +145,7 @@ export default function AdminDashboardPage() {
       />
 
       {/* Filters */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         <input type="text" placeholder="Customer" value={filterCustomer} onChange={(e) => setFilterCustomer(e.target.value)} className={INPUT_CLASS} />
         <input type="text" placeholder="Vehicle No." value={filterVehicle} onChange={(e) => setFilterVehicle(e.target.value)} className={INPUT_CLASS} />
         <input type="text" placeholder="Employee" value={filterEmployee} onChange={(e) => setFilterEmployee(e.target.value)} className={INPUT_CLASS} />

@@ -166,9 +166,9 @@ export default function EmployeeFollowUpsPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex items-center gap-3 flex-wrap">
-        <input type="date" value={filterDate} onChange={(e) => setFilterDate(e.target.value)} className="bg-surface-2 border border-border text-text-primary rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary transition" />
-        <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value as Category | '')} className="bg-surface-2 border border-border text-text-primary rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary transition">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <input type="date" value={filterDate} onChange={(e) => setFilterDate(e.target.value)} className="bg-surface-2 border border-border text-text-primary rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary transition w-full" />
+        <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value as Category | '')} className="bg-surface-2 border border-border text-text-primary rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary transition w-full">
           <option value="">All Categories</option>
           {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
         </select>
