@@ -6,7 +6,7 @@
  * - Lists all employees with name, email, creation date.
  * - Add Employee form: name, email, password → Server Action → Firestore profile.
  * - Remove employee: ConfirmDialog → Server Action.
- * - Password reset: sendPasswordResetEmail.
+ * - Direct password reset: admin types new password → Server Action.
  * - Inline errors for duplicate email / weak password.
  *
  * Requirements: 8.1–8.8
@@ -14,10 +14,8 @@
 
 import { useEffect, useState, FormEvent } from 'react';
 import { Timestamp } from 'firebase/firestore';
-import { sendPasswordResetEmail } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
 import { getAllUsers } from '@/lib/firestore';
-import { createEmployeeAction, deleteEmployeeAction } from '@/app/actions/employees';
+import { createEmployeeAction, deleteEmployeeAction, resetPasswordAction } from '@/app/actions/employees';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import LoadingSkeleton from '@/components/ui/LoadingSkeleton';
 import { useToast } from '@/components/ui/Toast';
@@ -49,6 +47,12 @@ export default function EmployeesPage() {
   const [password, setPassword] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  // Password reset
+  const [resetTarget, setResetTarget] = useState<UserProfile | null>(null);
+  const [newPassword, setNewPassword] = useState('');
+  const [resetting, setResetting] = useState(false);
+  const [resetError, setResetError] = useState<string | null>(null);
 
   useEffect(() => {
     getAllUsers()
@@ -97,13 +101,24 @@ export default function EmployeesPage() {
     showToast('Employee removed.', 'success');
   }
 
-  async function handlePasswordReset(emp: UserProfile) {
-    try {
-      await sendPasswordResetEmail(auth, emp.email);
-      showToast(`Password reset email sent to ${emp.email}.`, 'success');
-    } catch {
-      showToast('Failed to send password reset email.', 'error');
+  async function handleResetPassword(e: FormEvent) {
+    e.preventDefault();
+    if (!resetTarget) return;
+    setResetError(null);
+    if (newPassword.length < 6) {
+      setResetError('Password must be at least 6 characters.');
+      return;
     }
+    setResetting(true);
+    const result = await resetPasswordAction(resetTarget.uid, newPassword);
+    setResetting(false);
+    if ('error' in result) {
+      setResetError(result.error);
+      return;
+    }
+    setResetTarget(null);
+    setNewPassword('');
+    showToast(`Password updated for ${resetTarget.name}.`, 'success');
   }
 
   return (
@@ -172,8 +187,8 @@ export default function EmployeesPage() {
                 <p className="text-text-muted text-sm">{formatDate(emp.createdAt as Parameters<typeof formatDate>[0])}</p>
                 <div className="flex items-center gap-1">
                   <button
-                    onClick={() => handlePasswordReset(emp)}
-                    title="Send password reset"
+                    onClick={() => { setResetTarget(emp); setNewPassword(''); setResetError(null); }}
+                    title="Reset password"
                     className="p-2 rounded-lg text-text-secondary hover:text-info hover:bg-info/10 transition-colors"
                   >
                     <KeyRound className="w-4 h-4" />
@@ -191,6 +206,54 @@ export default function EmployeesPage() {
           </div>
         )}
       </section>
+
+      {/* Password Reset Dialog */}
+      {resetTarget && (
+        <>
+          <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" onClick={() => setResetTarget(null)} aria-hidden="true" />
+          <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+            <div className="bg-surface border border-border rounded-2xl shadow-2xl w-full max-w-sm p-6">
+              <h3 className="text-text-primary font-semibold text-base mb-1">Reset Password</h3>
+              <p className="text-text-secondary text-sm mb-4">
+                Set a new password for <span className="text-text-primary font-medium">{resetTarget.name}</span> ({resetTarget.email})
+              </p>
+              <form onSubmit={handleResetPassword} className="space-y-4">
+                <div>
+                  <label className={LABEL_CLASS}>New Password</label>
+                  <input
+                    type="password"
+                    autoComplete="new-password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    disabled={resetting}
+                    className={INPUT_CLASS}
+                    placeholder="Min. 6 characters"
+                    autoFocus
+                  />
+                </div>
+                {resetError && <p className="text-error text-sm">{resetError}</p>}
+                <div className="flex gap-3 justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setResetTarget(null)}
+                    className="px-4 py-2 rounded-lg text-sm font-medium text-text-secondary bg-surface-2 hover:bg-border transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={resetting}
+                    className="flex items-center gap-2 bg-primary hover:bg-primary-600 disabled:opacity-60 text-white font-semibold rounded-lg px-5 py-2.5 text-sm transition-colors"
+                  >
+                    <KeyRound className="w-4 h-4" />
+                    {resetting ? 'Updating…' : 'Update Password'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Delete confirmation */}
       {deleteTarget && (

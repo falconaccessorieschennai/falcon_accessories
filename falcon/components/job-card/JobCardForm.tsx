@@ -13,15 +13,15 @@
  * Requirements: 3.1, 3.2, 3.11, 3.12, 3.13, 3.14, 3.15
  */
 
-import { useState, FormEvent } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { Timestamp } from 'firebase/firestore';
 import { useAuth } from '@/components/auth/AuthProvider';
-import { createJobCard } from '@/lib/firestore';
-import { ACCESSORY_CATALOG } from '@/lib/accessories';
+import { createJobCard, getAccessoryCatalog } from '@/lib/firestore';
 import { generateJobCardPDF } from '../pdf/generatePDF';
 import CategoryCard from './CategoryCard';
-import type { SelectedAccessory, AccessoryCategory } from '@/types';
+import LoadingSkeleton from '@/components/ui/LoadingSkeleton';
+import type { SelectedAccessory, AccessoryCategory, AccessoryDefinition } from '@/types';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -63,8 +63,6 @@ const FIELD_LABELS: Record<keyof FormFields, string> = {
   notes: 'Notes',
 };
 
-const CATEGORIES = Object.keys(ACCESSORY_CATALOG) as AccessoryCategory[];
-
 const INPUT_CLASS =
   'w-full bg-surface-2 border border-border text-text-primary rounded-lg px-4 py-3 text-sm placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:opacity-50 transition';
 
@@ -82,6 +80,18 @@ interface JobCardFormProps {
 export default function JobCardForm({ onSuccess }: JobCardFormProps) {
   const { user } = useAuth();
   const router = useRouter();
+
+  const [accessoryCatalog, setAccessoryCatalog] = useState<Record<string, AccessoryDefinition[]>>({});
+  const [catalogLoading, setCatalogLoading] = useState(true);
+
+  useEffect(() => {
+    getAccessoryCatalog()
+      .then(setAccessoryCatalog)
+      .catch(() => setAccessoryCatalog({}))
+      .finally(() => setCatalogLoading(false));
+  }, []);
+
+  const CATEGORIES = Object.keys(accessoryCatalog) as AccessoryCategory[];
 
   const [fields, setFields] = useState<FormFields>({
     customerName: '',
@@ -193,6 +203,10 @@ export default function JobCardForm({ onSuccess }: JobCardFormProps) {
     } finally {
       setSubmitting(false);
     }
+  }
+
+  if (catalogLoading) {
+    return <LoadingSkeleton rows={6} height="h-10" />;
   }
 
   return (
@@ -358,7 +372,7 @@ export default function JobCardForm({ onSuccess }: JobCardFormProps) {
               key={cat}
               title={cat}
               category={cat}
-              accessories={ACCESSORY_CATALOG[cat]}
+              accessories={accessoryCatalog[cat]}
               selected={getAccessoriesForCategory(cat)}
               onChange={(updated) => handleCategoryChange(cat, updated)}
             />

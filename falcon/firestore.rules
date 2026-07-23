@@ -29,5 +29,22 @@ service cloud.firestore {
       allow update: if request.auth != null && (isAdmin() || resource.data.createdBy == request.auth.uid);
       allow delete: if request.auth != null && isAdmin();
     }
+
+    // Accessories collection
+    // - Any authenticated user can read (needed for job card forms)
+    // - Only admin can create, update, delete
+    match /accessories/{accessoryId} {
+      allow read: if request.auth != null;
+      allow create, update, delete: if request.auth != null && isAdmin();
+    }
+
+    // Follow-ups collection
+    // - Admin can read/write all
+    // - Employee can read/write only their own (createdBy == uid)
+    match /followUps/{followUpId} {
+      allow read: if request.auth != null && (isAdmin() || resource.data.createdBy == request.auth.uid);
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null && (isAdmin() || resource.data.createdBy == request.auth.uid);
+    }
   }
 }

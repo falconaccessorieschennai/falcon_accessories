@@ -3,10 +3,9 @@
 import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp, doc, setDoc } from 'firebase/firestore';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
-import { createUserProfile } from '@/lib/firestore';
+import { auth, db } from '@/lib/firebase';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import type { Role } from '@/types';
 
@@ -26,13 +25,21 @@ export default function SignupPage() {
     setLoading(true);
     try {
       const credential = await createUserWithEmailAndPassword(auth, email, password);
-      await createUserProfile({
-        uid: credential.user.uid,
-        name,
-        email,
-        role,
-        createdAt: Timestamp.now() as any,
-      });
+      try {
+        const userRef = doc(db, 'users', credential.user.uid);
+        await setDoc(userRef, {
+          uid: credential.user.uid,
+          name,
+          email,
+          role,
+          createdAt: Timestamp.now(),
+        });
+      } catch (firestoreErr: any) {
+        console.error('Firestore profile write failed:', firestoreErr?.code, firestoreErr?.message);
+        setError('Account created but profile save failed. Please try logging in.');
+        setLoading(false);
+        return;
+      }
       window.location.href = role === 'admin' ? '/admin/dashboard' : '/employee/dashboard';
     } catch (err: any) {
       if (err.code === 'auth/email-already-in-use') {
@@ -66,10 +73,10 @@ export default function SignupPage() {
         {/* Branding */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-black border-2 border-primary mb-4 shadow-lg shadow-primary/20">
-            <span className="text-primary font-black text-2xl tracking-tight">FA</span>
+            <span className="text-primary font-black text-2xl tracking-tight">FC</span>
           </div>
           <h1 className="text-white text-3xl font-black tracking-tight uppercase">
-            Falcon Accessories
+            Falcon Carx
           </h1>
           <p className="text-gray-400 text-xs mt-1 tracking-widest uppercase">
             Style · Comfort · Performance

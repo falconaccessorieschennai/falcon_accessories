@@ -157,6 +157,19 @@ export async function deleteJobCard(id: string): Promise<void> {
   await deleteDoc(doc(db, JOB_CARDS_COLLECTION, id));
 }
 
+/**
+ * Updates all editable fields of a job card and refreshes `updatedAt`.
+ */
+export async function updateJobCard(
+  id: string,
+  data: Partial<Omit<JobCard, 'id' | 'createdAt' | 'createdBy'>>
+): Promise<void> {
+  await updateDoc(doc(db, JOB_CARDS_COLLECTION, id), {
+    ...data,
+    updatedAt: serverTimestamp(),
+  });
+}
+
 // ---------------------------------------------------------------------------
 // User Profile operations
 // ---------------------------------------------------------------------------
@@ -208,4 +221,137 @@ export async function getAllUsers(): Promise<UserProfile[]> {
  */
 export async function updateUserProfile(uid: string, name: string): Promise<void> {
   await updateDoc(doc(db, USERS_COLLECTION, uid), { name });
+}
+
+// ---------------------------------------------------------------------------
+// Accessories operations
+// ---------------------------------------------------------------------------
+
+const ACCESSORIES_COLLECTION = 'accessories';
+
+/**
+ * Fetches all accessory documents from Firestore, grouped by category.
+ */
+export async function getAccessoryCatalog(): Promise<Record<string, import('@/types').AccessoryDefinition[]>> {
+  const snapshot = await getDocs(collection(db, ACCESSORIES_COLLECTION));
+  const catalog: Record<string, import('@/types').AccessoryDefinition[]> = {};
+  snapshot.docs.forEach((d) => {
+    const data = d.data() as { id: string; name: string; category: string; variants: string[] };
+    if (!catalog[data.category]) catalog[data.category] = [];
+    catalog[data.category].push({ id: data.id, name: data.name, variants: data.variants });
+  });
+  return catalog;
+}
+
+/**
+ * Adds a new accessory document to Firestore.
+ */
+export async function addAccessory(data: { id: string; name: string; category: string; variants: string[] }): Promise<void> {
+  await setDoc(doc(db, ACCESSORIES_COLLECTION, data.id), data);
+}
+
+/**
+ * Updates an existing accessory document.
+ */
+export async function updateAccessory(accessoryId: string, data: { name: string; category: string; variants: string[] }): Promise<void> {
+  await updateDoc(doc(db, ACCESSORIES_COLLECTION, accessoryId), data);
+}
+
+/**
+ * Deletes an accessory document.
+ */
+export async function deleteAccessory(accessoryId: string): Promise<void> {
+  await deleteDoc(doc(db, ACCESSORIES_COLLECTION, accessoryId));
+}
+
+/**
+ * Seeds all static accessories into Firestore (one-time operation).
+ */
+export async function seedAccessories(catalog: Record<string, { id: string; name: string; variants: string[] }[]>): Promise<void> {
+  for (const [category, items] of Object.entries(catalog)) {
+    for (const item of items) {
+      await setDoc(doc(db, ACCESSORIES_COLLECTION, item.id), {
+        id: item.id,
+        name: item.name,
+        category,
+        variants: item.variants,
+      });
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Follow-Up operations
+// ---------------------------------------------------------------------------
+
+const FOLLOWUPS_COLLECTION = 'followUps';
+
+export interface FollowUpData {
+  id?: string;
+  customerName: string;
+  phoneNumber: string;
+  carDetails: string;
+  fittingDetails: string;
+  followUpDate: string; // YYYY-MM-DD
+  category: 'City' | 'Out of City';
+  voiceNote: string | null; // base64 encoded audio
+  notes: string;
+  createdBy: string;
+  createdByEmail: string;
+  createdAt?: any;
+}
+
+/**
+ * Creates a new follow-up document.
+ */
+export async function createFollowUp(data: Omit<FollowUpData, 'id' | 'createdAt'>): Promise<string> {
+  const docRef = await addDoc(collection(db, FOLLOWUPS_COLLECTION), {
+    ...data,
+    createdAt: serverTimestamp(),
+  });
+  return docRef.id;
+}
+
+/**
+ * Fetches follow-ups with optional filters.
+ */
+export async function getFollowUps(filters?: { date?: string; category?: string; createdBy?: string; createdByEmail?: string }): Promise<FollowUpData[]> {
+  let q;
+  const constraints: any[] = [];
+
+  if (filters?.date) {
+    constraints.push(where('followUpDate', '==', filters.date));
+  }
+  if (filters?.category) {
+    constraints.push(where('category', '==', filters.category));
+  }
+  if (filters?.createdBy) {
+    constraints.push(where('createdBy', '==', filters.createdBy));
+  }
+  if (filters?.createdByEmail) {
+    constraints.push(where('createdByEmail', '==', filters.createdByEmail));
+  }
+
+  if (constraints.length > 0) {
+    q = query(collection(db, FOLLOWUPS_COLLECTION), ...constraints);
+  } else {
+    q = collection(db, FOLLOWUPS_COLLECTION);
+  }
+
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((d) => ({ ...d.data(), id: d.id } as FollowUpData));
+}
+
+/**
+ * Updates a follow-up document.
+ */
+export async function updateFollowUp(id: string, data: Partial<FollowUpData>): Promise<void> {
+  await updateDoc(doc(db, FOLLOWUPS_COLLECTION, id), data);
+}
+
+/**
+ * Deletes a follow-up document.
+ */
+export async function deleteFollowUp(id: string): Promise<void> {
+  await deleteDoc(doc(db, FOLLOWUPS_COLLECTION, id));
 }

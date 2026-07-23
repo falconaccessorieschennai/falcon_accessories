@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
-import { getUserProfile } from '@/lib/firestore';
+import { getUserProfile, createUserProfile } from '@/lib/firestore';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 
 export default function LoginPage() {
@@ -22,8 +22,24 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const credential = await signInWithEmailAndPassword(auth, email, password);
-      const profile = await getUserProfile(credential.user.uid);
-      const role = profile?.role ?? 'employee';
+      let role: string = 'employee';
+      try {
+        const profile = await getUserProfile(credential.user.uid);
+        if (profile) {
+          role = profile.role ?? 'employee';
+        } else {
+          // Profile document missing — create one so Firestore rules work
+          await createUserProfile({
+            uid: credential.user.uid,
+            name: credential.user.displayName ?? credential.user.email?.split('@')[0] ?? 'User',
+            email: credential.user.email ?? '',
+            role: 'employee',
+            createdAt: new Date(),
+          });
+        }
+      } catch (profileErr) {
+        console.warn('Could not fetch/create user profile:', profileErr);
+      }
       if (role === 'admin') {
         router.replace('/admin/dashboard');
       } else {
@@ -56,10 +72,10 @@ export default function LoginPage() {
         {/* Branding */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-black border-2 border-primary mb-4 shadow-lg shadow-primary/20">
-            <span className="text-primary font-black text-2xl tracking-tight">FA</span>
+            <span className="text-primary font-black text-2xl tracking-tight">FC</span>
           </div>
           <h1 className="text-white text-3xl font-black tracking-tight uppercase">
-            Falcon Accessories
+            Falcon Carx
           </h1>
           <p className="text-gray-400 text-xs mt-1 tracking-widest uppercase">
             Style · Comfort · Performance

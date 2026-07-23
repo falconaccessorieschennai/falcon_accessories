@@ -23,6 +23,8 @@ import {
   LogOut,
   Menu,
   X,
+  Package,
+  UserCheck,
 } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import ThemeToggle from '@/components/ui/ThemeToggle';
@@ -38,16 +40,19 @@ interface NavItem {
 }
 
 const ADMIN_NAV: NavItem[] = [
-  { label: 'Dashboard',   href: '/admin/dashboard',  icon: <LayoutDashboard className="w-5 h-5" /> },
-  { label: 'New Job Card', href: '/job-cards/new',   icon: <FilePlus className="w-5 h-5" /> },
-  { label: 'Employees',   href: '/admin/employees',  icon: <Users className="w-5 h-5" /> },
-  { label: 'Settings',    href: '/admin/settings',   icon: <Settings className="w-5 h-5" /> },
+  { label: 'Dashboard',   href: '/admin/dashboard',    icon: <LayoutDashboard className="w-5 h-5" /> },
+  { label: 'New Job Card', href: '/job-cards/new',     icon: <FilePlus className="w-5 h-5" /> },
+  { label: 'Follow-Ups',  href: '/admin/follow-ups',   icon: <UserCheck className="w-5 h-5" /> },
+  { label: 'Accessories', href: '/admin/accessories',  icon: <Package className="w-5 h-5" /> },
+  { label: 'Employees',   href: '/admin/employees',    icon: <Users className="w-5 h-5" /> },
+  { label: 'Settings',    href: '/admin/settings',     icon: <Settings className="w-5 h-5" /> },
 ];
 
 const EMPLOYEE_NAV: NavItem[] = [
-  { label: 'Dashboard',    href: '/employee/dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
-  { label: 'New Job Card', href: '/job-cards/new',      icon: <FilePlus className="w-5 h-5" /> },
-  { label: 'Settings',     href: '/employee/settings',  icon: <Settings className="w-5 h-5" /> },
+  { label: 'Dashboard',    href: '/employee/dashboard',    icon: <LayoutDashboard className="w-5 h-5" /> },
+  { label: 'New Job Card', href: '/job-cards/new',         icon: <FilePlus className="w-5 h-5" /> },
+  { label: 'Follow-Ups',  href: '/employee/follow-ups',   icon: <UserCheck className="w-5 h-5" /> },
+  { label: 'Settings',     href: '/employee/settings',     icon: <Settings className="w-5 h-5" /> },
 ];
 
 // ---------------------------------------------------------------------------
@@ -68,11 +73,11 @@ function NavContent({ onClose }: { onClose?: () => void }) {
       {/* Logo */}
       <div className="flex items-center gap-3 px-5 py-5 border-b border-border">
         <div className="w-9 h-9 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center flex-shrink-0">
-          <span className="text-primary font-bold text-sm">FA</span>
+          <span className="text-primary font-bold text-sm">FC</span>
         </div>
         <div className="min-w-0">
           <p className="text-text-primary font-semibold text-sm leading-tight truncate">
-            Falcon Accessories
+            Falcon Carx
           </p>
           <p className="text-text-muted text-xs capitalize">{role}</p>
         </div>
@@ -148,9 +153,9 @@ export default function Sidebar() {
         </button>
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center">
-            <span className="text-primary font-bold text-xs">FA</span>
+            <span className="text-primary font-bold text-xs">FC</span>
           </div>
-          <span className="text-text-primary font-semibold text-sm">Falcon Accessories</span>
+          <span className="text-text-primary font-semibold text-sm">Falcon Carx</span>
         </div>
       </div>
 

@@ -8,7 +8,7 @@ import { ThemeProvider } from '@/components/ui/ThemeProvider';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Falcon Accessories — Job Card Management',
+  title: 'Falcon Carx — Job Card Management',
   description: 'Premium car accessories job card management system',
 };
 

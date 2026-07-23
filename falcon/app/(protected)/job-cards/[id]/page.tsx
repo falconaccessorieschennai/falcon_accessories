@@ -15,7 +15,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Download, Trash2, ArrowLeft } from 'lucide-react';
+import { Download, Trash2, ArrowLeft, Pencil } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { getJobCard, updateJobCardStatus, deleteJobCard } from '@/lib/firestore';
 import { generateJobCardPDF } from '@/components/pdf/generatePDF';
@@ -128,6 +128,15 @@ export default function JobCardDetailsPage() {
           Back
         </button>
         <div className="flex items-center gap-2">
+          {canEdit && (
+            <button
+              onClick={() => router.push(`/job-cards/${id}/edit`)}
+              className="flex items-center gap-2 bg-surface border border-border hover:bg-surface-2 text-text-primary rounded-lg px-4 py-2 text-sm font-medium transition-colors"
+            >
+              <Pencil className="w-4 h-4" />
+              Edit
+            </button>
+          )}
           <button
             onClick={handleDownload}
             className="flex items-center gap-2 bg-surface border border-border hover:bg-surface-2 text-text-primary rounded-lg px-4 py-2 text-sm font-medium transition-colors"

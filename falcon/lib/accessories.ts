@@ -1,23 +1,16 @@
 /**
- * Static accessory catalog for the Falcon Accessories Job Card Management System.
+ * Accessory catalog for the Falcon Accessories Job Card Management System.
  *
- * The catalog is keyed by category name and contains an ordered list of
- * `AccessoryDefinition` objects. Accessories with predefined variant options
- * include a non-empty `variants` array; all others use an empty array.
+ * The catalog is now stored in Firestore (accessories collection).
+ * This file provides the static seed data and helper constants.
  */
 
 import type { AccessoryDefinition } from '@/types';
 
 /**
- * The complete, static accessory catalog used to populate the job card form.
- *
- * Categories:
- *  - Safety & Security
- *  - Essential
- *  - Entertainment
- *  - Ambience
+ * Static seed data — used only for initial database seeding.
  */
-export const ACCESSORY_CATALOG: Record<string, AccessoryDefinition[]> = {
+export const SEED_ACCESSORY_CATALOG: Record<string, AccessoryDefinition[]> = {
   'Safety & Security': [
     { id: 'dash-camera',    name: 'Dash Camera',                 variants: [] },
     { id: 'rear-bumper',    name: 'Rear Bumper',                 variants: [] },
@@ -27,17 +20,9 @@ export const ACCESSORY_CATALOG: Record<string, AccessoryDefinition[]> = {
   ],
 
   'Essential': [
-    { id: 'sun-film',         name: 'Sun Film',         variants: ['Hi-Teach', 'Hi-Cool', 'Garware','3M Film'] },
-    {
-      id: 'seat-cover',
-      name: 'Seat Cover',
-      variants: ['Fabric', 'Leather', 'Premium Leather'],
-    },
-    {
-      id: 'led-bulb',
-      name: 'LED Bulb',
-      variants: ['Basic', 'Premium', 'Ultra Bright'],
-    },
+    { id: 'sun-film',         name: 'Sun Film',         variants: ['Hi-Teach', 'Hi-Cool', 'Garware', '3M Film'] },
+    { id: 'seat-cover',       name: 'Seat Cover',       variants: ['Fabric', 'Leather', 'Premium Leather'] },
+    { id: 'led-bulb',         name: 'LED Bulb',         variants: ['Basic', 'Premium', 'Ultra Bright'] },
     { id: 'steering-cover',   name: 'Steering Cover',   variants: [] },
     { id: 'projector-lights', name: 'Projector Lights', variants: [] },
     { id: 'horn',             name: 'Horn',             variants: [] },
@@ -46,15 +31,11 @@ export const ACCESSORY_CATALOG: Record<string, AccessoryDefinition[]> = {
   ],
 
   'Entertainment': [
-    { id: 'android-system', name: 'Android System', variants: ['TS7 - (4+64)','P13 - (4+64 Carplay)','ZY - (4+64 Carplay)','MTK - (4+64 Carplay)','T5 - (4+32 DVR Carplay)','T5 - (4+32 360* Carplay)','Diamond - (4+64 2K Carplay)','Diamond - (4+64 360* Carplay)','Rapid 13inch- (6+64 Carplay)'] },
-    { id: 'speakers',       name: 'Speakers',       variants: ['component','coaxial'] },
+    { id: 'android-system', name: 'Android System', variants: ['TS7 - (4+64)', 'P13 - (4+64 Carplay)', 'ZY - (4+64 Carplay)', 'MTK - (4+64 Carplay)', 'T5 - (4+32 DVR Carplay)', 'T5 - (4+32 360* Carplay)', 'Diamond - (4+64 2K Carplay)', 'Diamond - (4+64 360* Carplay)', 'Rapid 13inch- (6+64 Carplay)'] },
+    { id: 'speakers',       name: 'Speakers',       variants: ['component', 'coaxial'] },
     { id: 'sub-woofers',    name: 'Sub Woofers',    variants: [] },
-    {
-      id: 'ambient-light',
-      name: 'Ambient Light',
-      variants: ['7 Color', '18 Color', 'App Controlled'],
-    },
-    { id: 'police-light', name: 'Police Light', variants: [] },
+    { id: 'ambient-light',  name: 'Ambient Light',  variants: ['7 Color', '18 Color', 'App Controlled'] },
+    { id: 'police-light',   name: 'Police Light',   variants: [] },
   ],
 
   'Ambience': [
@@ -62,8 +43,3 @@ export const ACCESSORY_CATALOG: Record<string, AccessoryDefinition[]> = {
     { id: 'recliner-seats', name: 'Recliner Seats',                  variants: [] },
   ],
 };
-
-/** Ordered list of category names, matching the display order in the form. */
-export const ACCESSORY_CATEGORIES = Object.keys(ACCESSORY_CATALOG) as Array<
-  keyof typeof ACCESSORY_CATALOG
->;

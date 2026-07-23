@@ -79,7 +79,7 @@ export function generateJobCardPDF({ jobCard, accessories, totalAmount }: Genera
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(20);
   doc.setTextColor(...COLOR_WHITE);
-  doc.text('FALCON ACCESSORIES', pageW / 2, 13, { align: 'center' });
+  doc.text('FALCON CARX', pageW / 2, 13, { align: 'center' });
 
   // Tagline
   doc.setFont('helvetica', 'normal');
@@ -237,7 +237,7 @@ export function generateJobCardPDF({ jobCard, accessories, totalAmount }: Genera
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7);
   doc.setTextColor(...COLOR_WHITE);
-  doc.text('Thank you for choosing Falcon Accessories — Chennai', pageW / 2, footerY + 2, { align: 'center' });
+  doc.text('Thank you for choosing Falcon Carx — Chennai', pageW / 2, footerY + 2, { align: 'center' });
 
   // ── Save ──────────────────────────────────────────────────────────────────
   const filename = `JobCard_${jobCard.vehicleNumber.replace(/\s+/g, '_')}_${jobCard.id.slice(0, 6)}.pdf`;
