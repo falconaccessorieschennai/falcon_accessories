@@ -286,16 +286,27 @@ export async function seedAccessories(catalog: Record<string, { id: string; name
 
 const FOLLOWUPS_COLLECTION = 'followUps';
 
+export type FollowUpStatus = 'Called' | 'Not Answered' | 'Interested' | 'Not Interested' | 'Rescheduled' | 'Converted';
+
+export interface FollowUpHistoryEntry {
+  date: string; // YYYY-MM-DD
+  status: FollowUpStatus;
+  notes: string;
+  voiceNote: string | null;
+}
+
 export interface FollowUpData {
   id?: string;
   customerName: string;
   phoneNumber: string;
   carDetails: string;
   fittingDetails: string;
-  followUpDate: string; // YYYY-MM-DD
+  followUpDate: string; // YYYY-MM-DD (next follow-up date)
   category: 'City' | 'Out of City';
+  status: FollowUpStatus;
   voiceNote: string | null; // base64 encoded audio
   notes: string;
+  history: FollowUpHistoryEntry[];
   createdBy: string;
   createdByEmail: string;
   createdAt?: any;
@@ -315,7 +326,7 @@ export async function createFollowUp(data: Omit<FollowUpData, 'id' | 'createdAt'
 /**
  * Fetches follow-ups with optional filters.
  */
-export async function getFollowUps(filters?: { date?: string; category?: string; createdBy?: string; createdByEmail?: string }): Promise<FollowUpData[]> {
+export async function getFollowUps(filters?: { date?: string; category?: string; status?: string; createdBy?: string; createdByEmail?: string }): Promise<FollowUpData[]> {
   let q;
   const constraints: any[] = [];
 
@@ -324,6 +335,9 @@ export async function getFollowUps(filters?: { date?: string; category?: string;
   }
   if (filters?.category) {
     constraints.push(where('category', '==', filters.category));
+  }
+  if (filters?.status) {
+    constraints.push(where('status', '==', filters.status));
   }
   if (filters?.createdBy) {
     constraints.push(where('createdBy', '==', filters.createdBy));
@@ -347,6 +361,27 @@ export async function getFollowUps(filters?: { date?: string; category?: string;
  */
 export async function updateFollowUp(id: string, data: Partial<FollowUpData>): Promise<void> {
   await updateDoc(doc(db, FOLLOWUPS_COLLECTION, id), data);
+}
+
+/**
+ * Adds a history entry to a follow-up and updates the next follow-up date and status.
+ */
+export async function addFollowUpHistory(
+  id: string,
+  entry: FollowUpHistoryEntry,
+  nextFollowUpDate: string,
+  newStatus: FollowUpStatus
+): Promise<void> {
+  const snap = await getDoc(doc(db, FOLLOWUPS_COLLECTION, id));
+  if (!snap.exists()) return;
+  const existing = snap.data() as FollowUpData;
+  const history = existing.history || [];
+  history.push(entry);
+  await updateDoc(doc(db, FOLLOWUPS_COLLECTION, id), {
+    history,
+    followUpDate: nextFollowUpDate,
+    status: newStatus,
+  });
 }
 
 /**
