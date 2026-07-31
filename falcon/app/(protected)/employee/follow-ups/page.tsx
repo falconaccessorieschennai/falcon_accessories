@@ -31,6 +31,8 @@ export default function EmployeeFollowUpsPage() {
   const [loading, setLoading] = useState(true);
   const [filterDate, setFilterDate] = useState('');
   const [filterCategory, setFilterCategory] = useState<Category | ''>('');
+  const [filterCreatedDate, setFilterCreatedDate] = useState('');
+  const [filterPhone, setFilterPhone] = useState('');
 
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -65,13 +67,14 @@ export default function EmployeeFollowUpsPage() {
   function loadFollowUps() {
     if (!user) return;
     setLoading(true);
-    const filters: { date?: string; category?: string; createdBy?: string } = { createdBy: user.uid };
+    const filters: { date?: string; category?: string; createdBy?: string; createdDate?: string } = { createdBy: user.uid };
     if (filterDate) filters.date = filterDate;
     if (filterCategory) filters.category = filterCategory;
+    if (filterCreatedDate) filters.createdDate = filterCreatedDate;
     getFollowUps(filters).then(setFollowUps).catch(() => showToast('Failed to load.', 'error')).finally(() => setLoading(false));
   }
 
-  useEffect(() => { loadFollowUps(); }, [user, filterDate, filterCategory]);
+  useEffect(() => { loadFollowUps(); }, [user, filterDate, filterCategory, filterCreatedDate]);
 
   async function startRecording(target: 'form' | 'history') {
     try {
@@ -118,41 +121,63 @@ export default function EmployeeFollowUpsPage() {
   async function handleDelete() { if (!deleteTarget?.id) return; setDeleting(true); try { await deleteFollowUp(deleteTarget.id); showToast('Deleted.', 'success'); setDeleteTarget(null); loadFollowUps(); } catch { showToast('Failed.', 'error'); } finally { setDeleting(false); } }
   function fmtDate(d: string) { return d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'; }
 
+  // Phone filter applied client-side so partial numbers match
+  const visibleFollowUps = filterPhone.trim()
+    ? followUps.filter((fu) => fu.phoneNumber.replace(/\s+/g, '').includes(filterPhone.replace(/\s+/g, '')))
+    : followUps;
+
   return (
     <div className="p-6 lg:pl-8 max-w-6xl mx-auto space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
-        <div><h1 className="text-text-primary text-2xl font-bold">My Follow-Ups</h1><p className="text-text-secondary text-sm mt-0.5">{loading ? 'Loading…' : `${followUps.length} follow-up${followUps.length !== 1 ? 's' : ''}`}</p></div>
+        <div><h1 className="text-text-primary text-2xl font-bold">My Follow-Ups</h1><p className="text-text-secondary text-sm mt-0.5">{loading ? 'Loading…' : `${visibleFollowUps.length} follow-up${visibleFollowUps.length !== 1 ? 's' : ''}`}</p></div>
         <button onClick={openAddForm} className="flex items-center gap-2 bg-primary hover:bg-primary-600 text-white font-semibold rounded-lg px-4 py-2.5 text-sm transition-colors"><Plus className="w-4 h-4" /> Add Follow-Up</button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <input type="date" value={filterDate} onChange={(e) => setFilterDate(e.target.value)} className={INPUT_CLASS} />
-        <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value as Category | '')} className={INPUT_CLASS}><option value="">All Categories</option>{CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}</select>
-        {(filterDate || filterCategory) && <button onClick={() => { setFilterDate(''); setFilterCategory(''); }} className="text-text-muted hover:text-text-primary text-sm">Clear</button>}
+      <div className="space-y-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div>
+            <label className="block text-text-muted text-xs mb-1">Mobile Number</label>
+            <input type="tel" value={filterPhone} onChange={(e) => setFilterPhone(e.target.value)} className={INPUT_CLASS} placeholder="Search by phone…" />
+          </div>
+          <div>
+            <label className="block text-text-muted text-xs mb-1">Follow-Up Date</label>
+            <input type="date" value={filterDate} onChange={(e) => setFilterDate(e.target.value)} className={INPUT_CLASS} />
+          </div>
+          <div>
+            <label className="block text-text-muted text-xs mb-1">Created Date</label>
+            <input type="date" value={filterCreatedDate} onChange={(e) => setFilterCreatedDate(e.target.value)} className={INPUT_CLASS} />
+          </div>
+          <div>
+            <label className="block text-text-muted text-xs mb-1">Category</label>
+            <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value as Category | '')} className={INPUT_CLASS}><option value="">All Categories</option>{CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}</select>
+          </div>
+        </div>
+        {(filterDate || filterCategory || filterCreatedDate || filterPhone) && <button onClick={() => { setFilterDate(''); setFilterCategory(''); setFilterCreatedDate(''); setFilterPhone(''); }} className="text-text-muted hover:text-text-primary text-sm">Clear filters</button>}
       </div>
 
-      {loading ? <LoadingSkeleton rows={5} height="h-24" /> : followUps.length === 0 ? (
+      {loading ? <LoadingSkeleton rows={5} height="h-24" /> : visibleFollowUps.length === 0 ? (
         <div className="text-center py-16 text-text-muted"><p>No follow-ups found.</p></div>
       ) : (
         <div className="space-y-3">
-          {followUps.map((fu) => (
+          {visibleFollowUps.map((fu) => (
             <div key={fu.id} className="bg-surface border border-border rounded-xl overflow-hidden">
               <div className="p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      {fu.customerName && <h3 className="text-text-primary font-semibold text-sm">{fu.customerName}</h3>}
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${STATUS_COLORS[fu.status]}`}>{fu.status}</span>
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${fu.category === 'City' ? 'bg-info/15 text-info border-info/30' : 'bg-warning/15 text-warning border-warning/30'}`}>{fu.category}</span>
+                      {fu.customerName && <h3 className="text-text-primary font-bold text-lg">{fu.customerName}</h3>}
+                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${STATUS_COLORS[fu.status]}`}>{fu.status}</span>
+                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${fu.category === 'City' ? 'bg-info/15 text-info border-info/30' : 'bg-warning/15 text-warning border-warning/30'}`}>{fu.category}</span>
                     </div>
-                    <div className="flex items-center gap-4 mt-1.5 text-text-secondary text-xs flex-wrap">
-                      <span className="flex items-center gap-1"><Phone className="w-3 h-3" />{fu.phoneNumber}</span>
-                      {fu.carDetails && <span className="flex items-center gap-1"><Car className="w-3 h-3" />{fu.carDetails}</span>}
-                      <span>📅 Next: {fmtDate(fu.followUpDate)}</span>
+                    <div className="flex items-center gap-4 mt-2 text-text-secondary text-sm flex-wrap">
+                      <span className="flex items-center gap-1.5"><Phone className="w-4 h-4" />{fu.phoneNumber}</span>
+                      {fu.carDetails && <span className="flex items-center gap-1.5"><Car className="w-4 h-4" />{fu.carDetails}</span>}
+                      <span className="font-medium">📅 Next: {fmtDate(fu.followUpDate)}</span>
+                      {fu.createdDate && <span className="text-text-muted">Created: {fmtDate(fu.createdDate)}</span>}
                     </div>
-                    {fu.fittingDetails && <p className="text-text-muted text-xs mt-1">Fitting: {fu.fittingDetails}</p>}
-                    {fu.notes && <p className="text-text-muted text-xs mt-1">Notes: {fu.notes}</p>}
-                    {fu.voiceNote && <button onClick={() => playingId === fu.id ? stopPlayback() : playVoiceNote(fu.voiceNote!, fu.id!)} className="flex items-center gap-1 mt-2 text-xs text-primary">{playingId === fu.id ? <Square className="w-3 h-3" /> : <Play className="w-3 h-3" />} {playingId === fu.id ? 'Stop' : 'Play'}</button>}
+                    {fu.fittingDetails && <p className="text-text-secondary text-sm mt-1.5">Fitting: {fu.fittingDetails}</p>}
+                    {fu.notes && <p className="text-text-secondary text-sm mt-1">Notes: {fu.notes}</p>}
+                    {fu.voiceNote && <button onClick={() => playingId === fu.id ? stopPlayback() : playVoiceNote(fu.voiceNote!, fu.id!)} className="flex items-center gap-1.5 mt-2.5 text-sm text-primary">{playingId === fu.id ? <Square className="w-4 h-4" /> : <Play className="w-4 h-4" />} {playingId === fu.id ? 'Stop' : 'Play Voice Note'}</button>}
                   </div>
                   <div className="flex items-center gap-1 flex-shrink-0">
                     <button onClick={() => openHistoryForm(fu)} title="Add entry" className="p-2 rounded-lg text-text-secondary hover:text-success hover:bg-success/10 transition-colors"><Clock className="w-4 h-4" /></button>
@@ -163,22 +188,22 @@ export default function EmployeeFollowUpsPage() {
               </div>
               {/* History */}
               <div className="border-t border-border">
-                <button onClick={() => setExpandedId(expandedId === fu.id ? null : fu.id!)} className="w-full flex items-center justify-between px-4 py-2.5 text-xs font-medium text-text-secondary hover:bg-surface-2 transition-colors">
-                  <span className="flex items-center gap-2"><Clock className="w-3.5 h-3.5" /> Follow-up Journey {fu.history && fu.history.length > 0 ? `(${fu.history.length})` : ''}</span>
-                  {expandedId === fu.id ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                <button onClick={() => setExpandedId(expandedId === fu.id ? null : fu.id!)} className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-text-secondary hover:bg-surface-2 transition-colors">
+                  <span className="flex items-center gap-2"><Clock className="w-4 h-4" /> Follow-up Journey {fu.history && fu.history.length > 0 ? `(${fu.history.length})` : ''}</span>
+                  {expandedId === fu.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                 </button>
                 {expandedId === fu.id && (
-                  <div className="px-4 pb-3">
+                  <div className="px-4 pb-4">
                     {(!fu.history || fu.history.length === 0) ? (
-                      <p className="text-text-muted text-xs py-2">No history yet. Click the clock icon to add an entry.</p>
+                      <p className="text-text-muted text-sm py-2">No history yet. Click the clock icon to add an entry.</p>
                     ) : (
-                      <div className="space-y-2">
+                      <div className="space-y-3">
                         {fu.history.map((h, i) => (
-                          <div key={i} className="flex items-start gap-3 pl-2 border-l-2 border-primary/30">
+                          <div key={i} className="flex items-start gap-3 pl-3 border-l-2 border-primary/30">
                             <div className="flex-1">
-                              <div className="flex items-center gap-2"><span className="text-text-primary text-xs font-medium">{fmtDate(h.date)}</span><span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border ${STATUS_COLORS[h.status]}`}>{h.status}</span></div>
-                              {h.notes && <p className="text-text-muted text-xs mt-0.5">{h.notes}</p>}
-                              {h.voiceNote && <button onClick={() => playingId === `h-${fu.id}-${i}` ? stopPlayback() : playVoiceNote(h.voiceNote!, `h-${fu.id}-${i}`)} className="text-[10px] text-primary mt-1">{playingId === `h-${fu.id}-${i}` ? '■ Stop' : '▶ Voice'}</button>}
+                              <div className="flex items-center gap-2 flex-wrap"><span className="text-text-primary text-sm font-semibold">{fmtDate(h.date)}</span><span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${STATUS_COLORS[h.status]}`}>{h.status}</span></div>
+                              {h.notes && <p className="text-text-secondary text-sm mt-1">{h.notes}</p>}
+                              {h.voiceNote && <button onClick={() => playingId === `h-${fu.id}-${i}` ? stopPlayback() : playVoiceNote(h.voiceNote!, `h-${fu.id}-${i}`)} className="text-xs text-primary mt-1.5">{playingId === `h-${fu.id}-${i}` ? '■ Stop' : '▶ Voice Note'}</button>}
                             </div>
                           </div>
                         ))}

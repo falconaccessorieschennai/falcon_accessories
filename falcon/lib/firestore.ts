@@ -309,6 +309,7 @@ export interface FollowUpData {
   history: FollowUpHistoryEntry[];
   createdBy: string;
   createdByEmail: string;
+  createdDate?: string; // YYYY-MM-DD when the follow-up was created
   createdAt?: any;
 }
 
@@ -318,6 +319,7 @@ export interface FollowUpData {
 export async function createFollowUp(data: Omit<FollowUpData, 'id' | 'createdAt'>): Promise<string> {
   const docRef = await addDoc(collection(db, FOLLOWUPS_COLLECTION), {
     ...data,
+    createdDate: new Date().toISOString().split('T')[0],
     createdAt: serverTimestamp(),
   });
   return docRef.id;
@@ -326,7 +328,7 @@ export async function createFollowUp(data: Omit<FollowUpData, 'id' | 'createdAt'
 /**
  * Fetches follow-ups with optional filters.
  */
-export async function getFollowUps(filters?: { date?: string; category?: string; status?: string; createdBy?: string; createdByEmail?: string }): Promise<FollowUpData[]> {
+export async function getFollowUps(filters?: { date?: string; category?: string; status?: string; createdBy?: string; createdByEmail?: string; createdDate?: string }): Promise<FollowUpData[]> {
   let q;
   const constraints: any[] = [];
 
@@ -344,6 +346,9 @@ export async function getFollowUps(filters?: { date?: string; category?: string;
   }
   if (filters?.createdByEmail) {
     constraints.push(where('createdByEmail', '==', filters.createdByEmail));
+  }
+  if (filters?.createdDate) {
+    constraints.push(where('createdDate', '==', filters.createdDate));
   }
 
   if (constraints.length > 0) {
