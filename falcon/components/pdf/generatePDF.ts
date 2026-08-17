@@ -85,7 +85,12 @@ export function generateJobCardPDF({ jobCard, accessories, totalAmount }: Genera
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
   doc.setTextColor(...COLOR_RED);
-  doc.text('Premium Car Accessories — Chennai', pageW / 2, 21, { align: 'center' });
+  doc.text('Premium Car Accessories — Chennai', pageW / 2, 19, { align: 'center' });
+
+  // Contact details
+  doc.setFontSize(6.5);
+  doc.setTextColor(...COLOR_WHITE);
+  doc.text('LGN ROAD, Border Thottam, Padupakkam, Royapettah, Chennai 600002 | Ph: 099409 93309 | falconaccessorieschennai@gmail.com', pageW / 2, 25, { align: 'center' });
 
   // Document title
   doc.setFont('helvetica', 'bold');
@@ -231,13 +236,16 @@ export function generateJobCardPDF({ jobCard, accessories, totalAmount }: Genera
   doc.text('Authorised Signature', pageW - 80, sigY + 5);
 
   // ── Footer ────────────────────────────────────────────────────────────────
-  const footerY = doc.internal.pageSize.getHeight() - 10;
+  const footerY = doc.internal.pageSize.getHeight() - 14;
   doc.setFillColor(...COLOR_RED);
-  doc.rect(0, footerY - 4, pageW, 14, 'F');
+  doc.rect(0, footerY - 4, pageW, 18, 'F');
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7);
   doc.setTextColor(...COLOR_WHITE);
-  doc.text('Thank you for choosing Falcon Carx — Chennai', pageW / 2, footerY + 2, { align: 'center' });
+  doc.text('Thank you for choosing Falcon Carx — Chennai', pageW / 2, footerY + 1, { align: 'center' });
+  doc.setFontSize(6);
+  doc.text('LGN ROAD, Border Thottam, Padupakkam, Royapettah, Chennai 600002', pageW / 2, footerY + 6, { align: 'center' });
+  doc.text('Phone: 099409 93309 | Email: falconaccessorieschennai@gmail.com', pageW / 2, footerY + 10, { align: 'center' });
 
   // ── Save ──────────────────────────────────────────────────────────────────
   const filename = `JobCard_${jobCard.vehicleNumber.replace(/\s+/g, '_')}_${jobCard.id.slice(0, 6)}.pdf`;

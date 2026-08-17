@@ -2,7 +2,7 @@
 
 import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { getUserProfile, createUserProfile } from '@/lib/firestore';
@@ -133,14 +133,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-5 text-center">
-            <p className="text-text-secondary text-sm">
-              Don&apos;t have an account?{' '}
-              <Link href="/signup" className="text-primary hover:text-primary-400 font-semibold transition-colors">
-                Sign up
-              </Link>
-            </p>
-          </div>
+
         </div>
       </div>
     </div>
