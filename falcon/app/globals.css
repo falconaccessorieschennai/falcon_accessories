@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Dark mode (default) ── */
+:root {
+  --color-background: #0A0A0A;
+  --color-surface: #1A1A1A;
+  --color-surface-2: #2A2A2A;
+  --color-border: #333333;
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #A0A0A0;
+  --color-text-muted: #666666;
+}
+
+/* ── Light mode ── */
+:root.light {
+  --color-background: #EBEBEB;
+  --color-surface: #F5F5F5;
+  --color-surface-2: #E5E5E5;
+  --color-border: #D4D4D4;
+  --color-text-primary: #1A1A1A;
+  --color-text-secondary: #4A4A4A;
+  --color-text-muted: #888888;
+}
